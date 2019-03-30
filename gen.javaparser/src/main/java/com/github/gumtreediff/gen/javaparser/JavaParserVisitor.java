@@ -23,14 +23,20 @@ import com.github.gumtreediff.io.LineReader;
 import com.github.gumtreediff.tree.ITree;
 import com.github.gumtreediff.tree.TreeContext;
 import com.github.javaparser.Position;
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.nodeTypes.NodeWithIdentifier;
+import com.github.javaparser.ast.nodeTypes.NodeWithName;
+import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.TreeVisitor;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class JavaParserVisitor extends TreeVisitor {
 
@@ -69,6 +75,14 @@ public class JavaParserVisitor extends TreeVisitor {
             label = Boolean.toString(((BooleanLiteralExpr) node).getValue());
         else if (node instanceof LiteralStringValueExpr)
             label = ((LiteralStringValueExpr) node).getValue();
+        else if (node instanceof PrimitiveType) 
+            label = ((PrimitiveType) node).getType().asString();
+        else if (node instanceof Name) {
+            Optional<Node> parent = node.getParentNode();
+            if (parent.isPresent() && parent.get() instanceof NodeWithName) {
+                label = ((NodeWithName) parent.get()).getNameAsString();
+            }
+        }
         pushNode(node, label);
     }
 
